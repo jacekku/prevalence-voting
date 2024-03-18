@@ -10,7 +10,7 @@ import java.util.UUID;
 interface Voting {
     VoteAdded addVote(UUID user, UUID poll, Vote vote);
 
-    PollCreated createPoll(UUID creator);
+    PollCreated createPoll(UUID creator, String pollName);
 
     PollClosed closePoll(UUID user, UUID poll);
 }

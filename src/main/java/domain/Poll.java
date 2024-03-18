@@ -7,6 +7,8 @@ import java.util.Objects;
 public class Poll implements Serializable {
     @Serial
     private static final long serialVersionUID = 1L;
+
+    String name;
     String creator;
     String id;
     PollResult result;

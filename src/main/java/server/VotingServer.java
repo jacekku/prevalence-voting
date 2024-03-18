@@ -99,7 +99,7 @@ public class VotingServer {
                         ctx.render(error);
                     })
                     .then(command -> {
-                        var event = service.createPoll(command.user());
+                        var event = service.createPoll(command.user(), "poll name");
                         if (event != null) {
                             ctx.render(json(new PollCreatedDto(event)));
                         }

@@ -42,7 +42,7 @@ public class Simulator {
         final List<ReaderSimulator> readers = new ArrayList<>();
         final List<UUID> polls = new ArrayList<>();
         for (int i = 0; i < 10_000; i++) {
-            var created = this.votingService.createPoll(UUID.randomUUID());
+            var created = this.votingService.createPoll(UUID.randomUUID(), "poll name");
             polls.add(UUID.fromString(created.poll()));
         }
 

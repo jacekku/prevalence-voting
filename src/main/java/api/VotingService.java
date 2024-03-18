@@ -24,12 +24,12 @@ public interface VotingService extends Voting, Polling {
     }
 
     @Override
-    default Events.PollCreated createPoll(UUID creator) {
+    default Events.PollCreated createPoll(UUID creator, String pollName) {
         var command = new Commands.CreatePoll(creator);
         if (!validateCommand(command)) {
             return null;
         }
-        var events = new Events.PollCreated(creator.toString(), UUID.randomUUID().toString());
+        var events = new Events.PollCreated(creator.toString(), UUID.randomUUID().toString(), pollName);
         applyEvent(events);
         return events;
     }

@@ -29,6 +29,7 @@ public class VotingSystem implements VotingService, Serializable {
         poll.result = new PollResult(event.poll(), 0, 0);
         poll.creator = event.user();
         poll.id = event.poll();
+        poll.name = event.pollName();
         polls.put(event.poll(), poll);
     }
 
