@@ -16,14 +16,12 @@ import java.util.UUID;
 
 public class VotingSystemPrevayler implements VotingService {
     final PersistenceController<VotingSystem> controller;
-    final VotingSystem system;
 
     public VotingSystemPrevayler(String repositoryFolder) {
-        system = new VotingSystem();
         controller = PrevaylerBuilder
                 .<VotingSystem>newBuilder()
                 .withFolder(Paths.get(repositoryFolder))
-                .useSupplier(() -> system)
+                .useSupplier(VotingSystem::new)
                 .disableRoyalFoodTester()
                 .build();
     }
@@ -33,50 +31,15 @@ public class VotingSystemPrevayler implements VotingService {
     }
 
     @Override
-    public void applyVoteAdded(Events.VoteAdded event) {
-        controller.execute(new VoteAdded(event));
+    public boolean validateCommand(Commands command) {
+        return controller.query(votingSystem -> votingSystem.validateCommand(command));
     }
 
     @Override
-    public void applyPollCreated(Events.PollCreated event) {
-        controller.execute(new PollCreated(event));
+    public void applyEvent(Events event) {
+        controller.executeAndQuery(new ApplyEvent(event));
     }
 
-    @Override
-    public void applyPollClosed(Events.PollClosed event) {
-        controller.execute(new PollClosed(event));
-    }
-
-    @Override
-    public boolean validateAddVote(Commands.AddVote command) {
-        return controller.query(new Query<>() {
-            @Override
-            public Boolean evaluate(VotingSystem votingSystem) {
-                return votingSystem.validateAddVote(command);
-            }
-        });
-    }
-
-    @Override
-    public boolean validateCreatePoll(Commands.CreatePoll command) {
-        return controller.query(new Query<>() {
-            @Override
-            public Boolean evaluate(VotingSystem votingSystem) {
-                return votingSystem.validateCreatePoll(command);
-
-            }
-        });
-    }
-
-    @Override
-    public boolean validateClosePoll(Commands.ClosePoll command) {
-        return controller.query(new Query<>() {
-            @Override
-            public Boolean evaluate(VotingSystem votingSystem) {
-                return votingSystem.validateClosePoll(command);
-            }
-        });
-    }
 
     @Override
     public Optional<PollResult> getResults(UUID poll) {
@@ -88,27 +51,12 @@ public class VotingSystemPrevayler implements VotingService {
         });
     }
 
-
-    private record VoteAdded(Events.VoteAdded event) implements VoidCommand<VotingSystem> {
+    private record ApplyEvent(Events event) implements VoidCommand<VotingSystem> {
         @Override
         public void executeVoid(VotingSystem votingSystem) {
-            votingSystem.applyVoteAdded(event);
-
+            votingSystem.applyEvent(event);
         }
     }
 
-    private record PollCreated(Events.PollCreated event) implements VoidCommand<VotingSystem> {
-        @Override
-        public void executeVoid(VotingSystem votingSystem) {
-            votingSystem.applyPollCreated(event);
-        }
-    }
-
-    private record PollClosed(Events.PollClosed event) implements VoidCommand<VotingSystem> {
-        @Override
-        public void executeVoid(VotingSystem votingSystem) {
-            votingSystem.applyPollClosed(event);
-        }
-    }
 
 }
