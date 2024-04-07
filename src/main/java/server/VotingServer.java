@@ -3,11 +3,13 @@ package server;
 import api.VotingService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
+import domain.Vote;
 import pl.setblack.badass.Politician;
 import ratpack.func.Action;
 import ratpack.handling.Chain;
 import ratpack.server.RatpackServer;
 import ratpack.server.ServerConfig;
+import system.DisruptorService;
 import system.VotingSystemPrevayler;
 
 import java.net.URI;
@@ -17,9 +19,11 @@ import static ratpack.jackson.Jackson.json;
 
 public class VotingServer {
     private final VotingService service;
+    private final DisruptorService disruptorService;
 
     public VotingServer() {
         this.service = new VotingSystemPrevayler("prod_events");
+        this.disruptorService = new DisruptorService(service);
     }
 
     private void init() {
@@ -59,19 +63,28 @@ public class VotingServer {
         });
     }
 
+//    private Action<Chain> addVoteAction() {
+//        return chain -> chain.patch(ctx -> {
+//            ctx.parse(AddVoteDto.class)
+//                    .onError(error -> {
+//                        System.out.println(error);
+//                        ctx.render(error);
+//                    })
+//                    .then(command -> {
+//                        var event = service.addVote(command.user(), command.poll(), command.vote());
+//                        if (event != null) {
+//                            ctx.render(json(new VoteAddedDto(event)));
+//                        }
+//                    });
+//        });
+//    }
+
     private Action<Chain> addVoteAction() {
         return chain -> chain.patch(ctx -> {
-            ctx.parse(AddVoteDto.class)
-                    .onError(error -> {
-                        System.out.println(error);
-                        ctx.render(error);
-                    })
-                    .then(command -> {
-                        var event = service.addVote(command.user(), command.poll(), command.vote());
-                        if (event != null) {
-                            ctx.render(json(new VoteAddedDto(event)));
-                        }
-                    });
+            ctx.getRequest().getBody().then(body -> {
+                this.disruptorService.acceptRequest(RequestType.ADD_VOTE, body.getText());
+                ctx.render(json(new VoteAddedDto("VoteAdded", "", "", Vote.YES)));
+            });
         });
     }
 
@@ -90,6 +103,8 @@ public class VotingServer {
                     });
         });
     }
+
+
 
     private Action<Chain> createPollAction() {
         return chain -> chain.post(ctx -> {

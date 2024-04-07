@@ -4,16 +4,15 @@ import api.VotingService;
 
 import java.io.Serial;
 import java.io.Serializable;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
-import java.util.UUID;
-import java.util.concurrent.ConcurrentHashMap;
 
 public class VotingSystem implements VotingService, Serializable {
     @Serial
     private static final long serialVersionUID = 1L;
 
-    Map<String, Poll> polls = new ConcurrentHashMap<>();
+    Map<String, Poll> polls = new HashMap<>();
 
     private void voteAdded(Events.VoteAdded event) {
         var poll = polls.get(event.poll());
