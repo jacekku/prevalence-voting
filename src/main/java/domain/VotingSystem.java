@@ -2,20 +2,23 @@ package domain;
 
 import api.VotingService;
 
+import java.io.IOException;
+import java.io.ObjectInputStream;
 import java.io.Serial;
 import java.io.Serializable;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 public class VotingSystem implements VotingService, Serializable {
     @Serial
     private static final long serialVersionUID = 1L;
 
+    List<Poll> pollArrayList = new ArrayList<>();
     Map<String, Poll> polls = new HashMap<>();
 
+
     private void voteAdded(Events.VoteAdded event) {
-        var poll = polls.get(event.poll());
+        var poll = pollArrayList.stream().filter(ev -> ev.id.equals(event.poll())).findFirst().orElse(null);
+        if (poll == null) return;
         if (event.vote().equals(Vote.YES)) {
             poll.result = new PollResult(poll.id, poll.result.yes() + 1, poll.result.no());
         } else {
@@ -29,16 +32,16 @@ public class VotingSystem implements VotingService, Serializable {
         poll.creator = event.user();
         poll.id = event.poll();
         poll.name = event.pollName();
-        polls.put(event.poll(), poll);
+        pollArrayList.add(poll);
     }
 
     private void pollClosed(Events.PollClosed event) {
-        polls.remove(event.poll());
+        pollArrayList.remove(event.poll());
     }
 
 
     private boolean validateAddVote(Commands.AddVote command) {
-        return polls.containsKey(command.poll());
+        return findPoll(command.poll()) != null;
     }
 
     private boolean validateCreatePoll(Commands.CreatePoll command) {
@@ -47,13 +50,15 @@ public class VotingSystem implements VotingService, Serializable {
 
 
     private boolean validateClosePoll(Commands.ClosePoll command) {
-        if (!polls.containsKey(command.poll().toString())) return false;
-        return polls.get(command.poll().toString()).creator.equals(command.user().toString());
+        var p = this.findPoll(command.poll().toString());
+        if (p == null) return false;
+        return p.creator.equals(command.user().toString());
     }
 
     public Optional<PollResult> getResults(String poll) {
-        if (!polls.containsKey(poll)) return Optional.empty();
-        return Optional.of(polls.get(poll).result);
+        var p = this.findPoll(poll);
+        if (p == null) return Optional.empty();
+        return Optional.of(p.result);
     }
 
 
@@ -78,5 +83,19 @@ public class VotingSystem implements VotingService, Serializable {
         } else if (event instanceof Events.VoteAdded e) {
             voteAdded(e);
         }
+    }
+
+    private Poll findPoll(String pollId) {
+        for (int i = 0; i < pollArrayList.size(); i++) {
+            if (pollArrayList.get(i).id.equals(pollId)) return pollArrayList.get(i);
+        }
+        return null;
+    }
+
+    @Serial
+    private void readObject(ObjectInputStream objectInputStream) throws IOException, ClassNotFoundException {
+        objectInputStream.defaultReadObject();
+        pollArrayList = new ArrayList<>();
+        polls.forEach((key, value) -> pollArrayList.add(value));
     }
 }
