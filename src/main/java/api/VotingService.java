@@ -13,12 +13,12 @@ public interface VotingService extends Voting, Polling {
     void applyEvent(Events event);
 
     @Override
-    default Events.VoteAdded addVote(UUID user, UUID poll, Vote vote) {
+    default Events.VoteAdded addVote(String user, String poll, Vote vote) {
         var command = new Commands.AddVote(user, poll, vote);
         if (!validateCommand(command)) {
             return null;
         }
-        var events = new Events.VoteAdded(user.toString(), poll.toString(), vote);
+        var events = new Events.VoteAdded(user, poll, vote);
         applyEvent(events);
         return events;
     }

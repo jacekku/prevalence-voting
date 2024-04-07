@@ -5,6 +5,9 @@ import domain.Commands;
 import domain.Events;
 import domain.PollResult;
 import domain.VotingSystem;
+import io.fury.Fury;
+import io.fury.ThreadSafeFury;
+import org.prevayler.foundation.serialization.JavaSerializer;
 import pl.setblack.airomem.core.PersistenceController;
 import pl.setblack.airomem.core.Query;
 import pl.setblack.airomem.core.VoidCommand;
@@ -42,7 +45,7 @@ public class VotingSystemPrevayler implements VotingService {
 
 
     @Override
-    public Optional<PollResult> getResults(UUID poll) {
+    public Optional<PollResult> getResults(String poll) {
         return controller.query(new Query<>() {
             @Override
             public Optional<PollResult> evaluate(VotingSystem votingSystem) {

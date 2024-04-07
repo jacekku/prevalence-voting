@@ -39,7 +39,7 @@ public class VotingSystem implements VotingService, Serializable {
 
 
     private boolean validateAddVote(Commands.AddVote command) {
-        return polls.containsKey(command.poll().toString());
+        return polls.containsKey(command.poll());
     }
 
     private boolean validateCreatePoll(Commands.CreatePoll command) {
@@ -49,13 +49,12 @@ public class VotingSystem implements VotingService, Serializable {
 
     private boolean validateClosePoll(Commands.ClosePoll command) {
         if (!polls.containsKey(command.poll().toString())) return false;
-        if (!polls.get(command.poll().toString()).creator.equals(command.user().toString())) return false;
-        return true;
+        return polls.get(command.poll().toString()).creator.equals(command.user().toString());
     }
 
-    public Optional<PollResult> getResults(UUID poll) {
-        if (!polls.containsKey(poll.toString())) return Optional.empty();
-        return Optional.of(polls.get(poll.toString()).result);
+    public Optional<PollResult> getResults(String poll) {
+        if (!polls.containsKey(poll)) return Optional.empty();
+        return Optional.of(polls.get(poll).result);
     }
 
 

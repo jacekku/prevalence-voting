@@ -30,6 +30,11 @@ public abstract class VotingSystemTestBase<Service extends VotingService> {
     }
 
     @Test
+    public void shouldAddOptionsToPoll() {
+
+    }
+
+    @Test
     public void shouldClosePoll() {
         UUID user = UUID.randomUUID();
         var created = createPoll(user);
@@ -41,13 +46,13 @@ public abstract class VotingSystemTestBase<Service extends VotingService> {
     public void shouldAddVoteToPoll() {
         UUID user = UUID.randomUUID();
         var created = createPoll(user);
-        var voted = service.addVote(user, UUID.fromString(created.poll()), Vote.YES);
+        var voted = service.addVote(user.toString(), UUID.fromString(created.poll()).toString(), Vote.YES);
         assertThat(voted.vote(), equalTo(Vote.YES));
     }
 
     @Test
     public void shouldNotAddVoteToNoPoll() {
-        var voted = service.addVote(UUID.randomUUID(), UUID.randomUUID(), Vote.YES);
+        var voted = service.addVote(UUID.randomUUID().toString(), UUID.randomUUID().toString(), Vote.YES);
         assertThat(voted, equalTo(null));
     }
 
@@ -63,8 +68,8 @@ public abstract class VotingSystemTestBase<Service extends VotingService> {
     public void canGetPollResults() {
         UUID user = UUID.randomUUID();
         var created = createPoll(user);
-        var voted = service.addVote(user, UUID.fromString(created.poll()), Vote.YES);
-        var result = service.getResults(UUID.fromString(created.poll())).get();
+        var voted = service.addVote(user.toString(), created.poll(), Vote.YES);
+        var result = service.getResults(created.poll()).get();
         assertThat(result, equalTo(new PollResult(created.poll(), 1, 0)));
     }
 }

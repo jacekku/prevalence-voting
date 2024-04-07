@@ -18,13 +18,13 @@ public class UserSimulator implements Runnable {
     final AtomicBoolean stopped = new AtomicBoolean(false);
 
     final AtomicLong counter = new AtomicLong(0);
-    private final List<UUID> polls;
-    private final UUID id;
+    private final List<String> polls;
+    private final String id;
 
-    public UserSimulator(VotingService votingService, List<UUID> polls) {
+    public UserSimulator(VotingService votingService, List<String> polls) {
         this.votingService = votingService;
         this.polls = polls;
-        this.id = UUID.randomUUID();
+        this.id = UUID.randomUUID().toString();
     }
 
     @Override

@@ -16,9 +16,9 @@ public class ReaderSimulator implements Runnable {
     final AtomicBoolean stopped = new AtomicBoolean(false);
 
     final AtomicLong counter = new AtomicLong(0);
-    private final List<UUID> polls;
+    private final List<String> polls;
 
-    public ReaderSimulator(VotingService votingService, List<UUID> polls) {
+    public ReaderSimulator(VotingService votingService, List<String> polls) {
         this.votingService = votingService;
         this.polls = polls;
     }

@@ -40,10 +40,10 @@ public class Simulator {
     public Result runSimulator(long time, int clientThreads, int readingThreads) {
         final List<UserSimulator> clients = new ArrayList<>();
         final List<ReaderSimulator> readers = new ArrayList<>();
-        final List<UUID> polls = new ArrayList<>();
+        final List<String> polls = new ArrayList<>();
         for (int i = 0; i < 10_000; i++) {
             var created = this.votingService.createPoll(UUID.randomUUID(), "poll name");
-            polls.add(UUID.fromString(created.poll()));
+            polls.add(created.poll());
         }
 
         for (int i = 0; i < clientThreads; i++) {

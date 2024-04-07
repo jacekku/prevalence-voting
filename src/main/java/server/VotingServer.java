@@ -33,7 +33,7 @@ public class VotingServer {
                                         .embedded()
                                         .publicAddress(new URI(("http://localhost")))
                                         .port(8080)
-                                        .threads(4))
+                                        .threads(1))
                         .handlers(chain -> {
                             chain.prefix("api", apiChain -> {
                                 apiChain
@@ -49,7 +49,7 @@ public class VotingServer {
 
     private Action<Chain> getPollResult() {
         return chain -> chain.get(":uuid", ctx -> {
-            var uuid = UUID.fromString(ctx.getPathTokens().get("uuid"));
+            var uuid = ctx.getPathTokens().get("uuid");
             var resultOptional = service.getResults(uuid);
             if (resultOptional.isPresent()) {
                 var result = resultOptional.get();
